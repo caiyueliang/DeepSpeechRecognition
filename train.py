@@ -2,12 +2,31 @@ import os
 import tensorflow as tf
 from utils import get_data, data_hparams
 from keras.callbacks import ModelCheckpoint
+from keras import backend as K
+K.tensorflow_backend._get_available_gpus()
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+
+
+# import keras.backend.tensorflow_backend as KTF
+# #进行配置，每个GPU使用90%上限现存
+# os.environ["CUDA_VISIBLE_DEVICES"] = "4" # 使用编号为0，1号的GPU
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.6 # 每个GPU上限控制在90%以内
+# session = tf.Session(config=config)
+# # 设置session
+# KTF.set_session(session)
+
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = '0'                    # use GPU with ID=0
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5    # maximun alloc gpu50% of MEM
+# config.gpu_options.allow_growth = True                      # allocate dynamically
 
 
 # 0.准备训练所需数据------------------------------
 data_args = data_hparams()
 data_args.data_type = 'train'
-data_args.data_path = '../dataset/'
+data_args.data_path = './data/'
 data_args.thchs30 = True
 data_args.aishell = True
 data_args.prime = True
@@ -21,7 +40,7 @@ train_data = get_data(data_args)
 # 0.准备验证所需数据------------------------------
 data_args = data_hparams()
 data_args.data_type = 'dev'
-data_args.data_path = '../dataset/'
+data_args.data_path = './data/'
 data_args.thchs30 = True
 data_args.aishell = True
 data_args.prime = False
@@ -34,22 +53,24 @@ dev_data = get_data(data_args)
 
 # 1.声学模型训练-----------------------------------
 from model_speech.cnn_ctc import Am, am_hparams
+# from model_speech.gru_ctc import Am, am_hparams
 am_args = am_hparams()
 am_args.vocab_size = len(train_data.am_vocab)
 am_args.gpu_nums = 1
 am_args.lr = 0.0008
 am_args.is_training = True
 am = Am(am_args)
+model_name = 'logs_am/gru_ctc_model.h5'
 
-if os.path.exists('logs_am/model.h5'):
-    print('load acoustic model...')
-    am.ctc_model.load_weights('logs_am/model.h5')
+if os.path.exists(model_name):
+    print('load acoustic model...', model_name)
+    am.ctc_model.load_weights(model_name)
 
 epochs = 10
 batch_num = len(train_data.wav_lst) // train_data.batch_size
 
 # checkpoint
-ckpt = "model_{epoch:02d}-{val_acc:.2f}.hdf5"
+ckpt = "model_{epoch:02d}-{val_loss:.2f}.hdf5"
 checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_loss', save_weights_only=False, verbose=1, save_best_only=True)
 
 #
@@ -63,7 +84,7 @@ batch = train_data.get_am_batch()
 dev_batch = dev_data.get_am_batch()
 
 am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=10, callbacks=[checkpoint], workers=1, use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
-am.ctc_model.save_weights('logs_am/model.h5')
+am.ctc_model.save_weights(model_name)
 
 
 # 2.语言模型训练-------------------------------------------
@@ -82,7 +103,8 @@ lm = Lm(lm_args)
 
 epochs = 10
 with lm.graph.as_default():
-    saver =tf.train.Saver()
+    saver = tf.train.Saver()
+
 with tf.Session(graph=lm.graph) as sess:
     merged = tf.summary.merge_all()
     sess.run(tf.global_variables_initializer())
@@ -92,6 +114,7 @@ with tf.Session(graph=lm.graph) as sess:
         latest = tf.train.latest_checkpoint('logs_lm')
         add_num = int(latest.split('_')[-1])
         saver.restore(sess, latest)
+
     writer = tf.summary.FileWriter('logs_lm/tensorboard', tf.get_default_graph())
     for k in range(epochs):
         total_loss = 0
