@@ -2,25 +2,16 @@ import os
 import tensorflow as tf
 from utils import get_data, data_hparams
 from keras.callbacks import ModelCheckpoint
-# from keras import backend as K
-# K.tensorflow_backend._get_available_gpus()
-# os.environ["CUDA_VISIBLE_DEVICES"] = "4"
-
-
 import keras.backend.tensorflow_backend as KTF
+
+
 # 进行配置，每个GPU使用90%上限现存
-os.environ["CUDA_VISIBLE_DEVICES"] = "4" # 使用编号为0，1号的GPU
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"                    # 使用编号为0，1号的GPU
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.6 # 每个GPU上限控制在90%以内
+config.gpu_options.per_process_gpu_memory_fraction = 0.7    # 每个GPU上限控制在60%以内
 session = tf.Session(config=config)
 # 设置session
 KTF.set_session(session)
-
-
-# os.environ["CUDA_VISIBLE_DEVICES"] = '0'                    # use GPU with ID=0
-# config = tf.ConfigProto()
-# config.gpu_options.per_process_gpu_memory_fraction = 0.5    # maximun alloc gpu50% of MEM
-# config.gpu_options.allow_growth = True                      # allocate dynamically
 
 
 # 0.准备训练所需数据------------------------------
@@ -31,7 +22,7 @@ data_args.thchs30 = True
 data_args.aishell = True
 data_args.prime = True
 data_args.stcmd = True
-data_args.batch_size = 16
+data_args.batch_size = 8
 data_args.data_length = 10
 # data_args.data_length = None
 data_args.shuffle = True
@@ -45,7 +36,7 @@ data_args.thchs30 = True
 data_args.aishell = True
 data_args.prime = False
 data_args.stcmd = False
-data_args.batch_size = 16
+data_args.batch_size = 8
 # data_args.data_length = None
 data_args.data_length = 10
 data_args.shuffle = True
@@ -66,7 +57,7 @@ if os.path.exists(model_name):
     print('load acoustic model...', model_name)
     am.ctc_model.load_weights(model_name)
 
-epochs = 200
+epochs = 500
 batch_num = len(train_data.wav_lst) // train_data.batch_size
 
 # checkpoint
@@ -83,7 +74,7 @@ checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_lo
 batch = train_data.get_am_batch()
 dev_batch = dev_data.get_am_batch()
 
-am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=10, callbacks=[checkpoint], workers=1, use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
+am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=epochs, callbacks=[checkpoint], workers=1, use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
 am.ctc_model.save_weights(model_name)
 
 
@@ -101,7 +92,7 @@ lm_args.lr = 0.0003
 lm_args.is_training = True
 lm = Lm(lm_args)
 
-epochs = 200
+epochs = 500
 with lm.graph.as_default():
     saver = tf.train.Saver()
 
