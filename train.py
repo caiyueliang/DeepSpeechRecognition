@@ -2,19 +2,19 @@ import os
 import tensorflow as tf
 from utils import get_data, data_hparams
 from keras.callbacks import ModelCheckpoint
-from keras import backend as K
-K.tensorflow_backend._get_available_gpus()
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+# from keras import backend as K
+# K.tensorflow_backend._get_available_gpus()
+# os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 
-# import keras.backend.tensorflow_backend as KTF
-# #进行配置，每个GPU使用90%上限现存
-# os.environ["CUDA_VISIBLE_DEVICES"] = "4" # 使用编号为0，1号的GPU
-# config = tf.ConfigProto()
-# config.gpu_options.per_process_gpu_memory_fraction = 0.6 # 每个GPU上限控制在90%以内
-# session = tf.Session(config=config)
-# # 设置session
-# KTF.set_session(session)
+import keras.backend.tensorflow_backend as KTF
+# 进行配置，每个GPU使用90%上限现存
+os.environ["CUDA_VISIBLE_DEVICES"] = "4" # 使用编号为0，1号的GPU
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.6 # 每个GPU上限控制在90%以内
+session = tf.Session(config=config)
+# 设置session
+KTF.set_session(session)
 
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = '0'                    # use GPU with ID=0
