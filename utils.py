@@ -9,6 +9,7 @@ from python_speech_features import mfcc
 from random import shuffle
 from keras import backend as K
 
+
 def data_hparams():
     params = tf.contrib.training.HParams(
         # vocab
@@ -24,7 +25,7 @@ def data_hparams():
     return params
 
 
-class get_data():
+class get_data(object):
     def __init__(self, args):
         self.data_type = args.data_type
         self.data_path = args.data_path
@@ -62,6 +63,7 @@ class get_data():
         self.wav_lst = []
         self.pny_lst = []
         self.han_lst = []
+
         for file in read_files:
             print('load ', file, ' data...')
             sub_file = 'data/' + file
@@ -72,10 +74,14 @@ class get_data():
                 self.wav_lst.append(wav_file)
                 self.pny_lst.append(pny.split(' '))
                 self.han_lst.append(han.strip('\n'))
+        print("[wav_lst] ", len(self.wav_lst), "[pny_lst] ", len(self.pny_lst), "[han_lst] ", len(self.han_lst))
+
         if self.data_length:
             self.wav_lst = self.wav_lst[:self.data_length]
             self.pny_lst = self.pny_lst[:self.data_length]
             self.han_lst = self.han_lst[:self.data_length]
+        print("[wav_lst] ", len(self.wav_lst), "[pny_lst] ", len(self.pny_lst), "[han_lst] ", len(self.han_lst))
+
         print('make am vocab...')
         self.am_vocab = self.mk_am_vocab(self.pny_lst)
         print('make lm pinyin vocab...')

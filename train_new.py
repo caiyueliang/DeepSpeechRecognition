@@ -20,12 +20,12 @@ def data_init():
     data_args.data_path = './data/'
     data_args.data_type = 'train'
     data_args.thchs30 = True
-    data_args.aishell = True
-    data_args.prime = True
-    data_args.stcmd = True
+    data_args.aishell = False
+    data_args.prime = False
+    data_args.stcmd = False
     data_args.batch_size = 8
-    data_args.data_length = 10
-    # data_args.data_length = None
+    data_args.data_length = None
+    # data_args.data_length = 10
     data_args.shuffle = True
     train_data = get_data(data_args)
 
@@ -34,12 +34,12 @@ def data_init():
     data_args.data_path = './data/'
     data_args.data_type = 'dev'
     data_args.thchs30 = True
-    data_args.aishell = True
+    data_args.aishell = False
     data_args.prime = False
     data_args.stcmd = False
     data_args.batch_size = 8
     # data_args.data_length = None
-    data_args.data_length = 10
+    # data_args.data_length = 10
     data_args.shuffle = True
     dev_data = get_data(data_args)
     return train_data, dev_data
@@ -47,15 +47,16 @@ def data_init():
 
 def train_am(train_data, dev_data):
     # 1.声学模型训练-----------------------------------
-    # from model_speech.cnn_ctc import Am, am_hparams
-    from model_speech.gru_ctc import Am, am_hparams
+    from model_speech.cnn_ctc import Am, am_hparams
+    model_name = 'logs_am/cnn_ctc_model.h5'
+    # from model_speech.gru_ctc import Am, am_hparams
+    # model_name = 'logs_am/gru_ctc_model.h5'
     am_args = am_hparams()
     am_args.vocab_size = len(train_data.am_vocab)
     am_args.gpu_nums = 1
     am_args.lr = 0.0008
     am_args.is_training = True
     am = Am(am_args)
-    model_name = 'logs_am/gru_ctc_model.h5'
 
     if os.path.exists(model_name):
         print('load acoustic model...', model_name)
