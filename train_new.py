@@ -25,7 +25,7 @@ def data_init():
     data_args.aishell = False
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 16
+    data_args.batch_size = 32
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -39,7 +39,7 @@ def data_init():
     data_args.aishell = False
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 16
+    data_args.batch_size = 32
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -70,12 +70,14 @@ def train_am(train_data, dev_data):
 
     # checkpoint
     ckpt = "model_{epoch:02d}-{val_loss:.2f}.hdf5"
-    checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_loss', save_weights_only=False, verbose=1, save_best_only=True)
+    checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_loss', save_weights_only=False,
+                                 verbose=1, save_best_only=True)
 
     batch = train_data.get_am_batch()
     dev_batch = dev_data.get_am_batch()
 
-    am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=epochs, callbacks=[checkpoint], workers=1, use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
+    am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=epochs, callbacks=[checkpoint], workers=1,
+                               use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
     am.ctc_model.save_weights(model_name)
 
 
