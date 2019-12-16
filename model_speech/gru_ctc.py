@@ -63,17 +63,31 @@ class Am(object):
 
 
 # ============================模型组件=================================
-def bi_gru(units, x):
-    x = Dropout(0.2)(x)
-    y1 = GRU(units, return_sequences=True, kernel_initializer='he_normal')(x)
-    y2 = GRU(units, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(x)
+# bi_gru是一个双向的GRU网络层
+def bi_gru(units, x, drop_rate=0.2):
+    # Dropout，将输入数据按比例（0.2）随机丢弃掉部分数据，防止过拟合的手段之一
+    x = Dropout(drop_rate)(x)
+
+    # units表示输出空间的维数，该模型设置为512
+    # return_sequences为True，表示返回完整序列，而不是只返回序列中的最后一个输出
+    # kernel_initializer，表示权重矩阵的初始化方式
+    y1 = GRU(units=units, return_sequences=True, kernel_initializer='he_normal')(x)
+
+    # go_backwards为True，表示反向处理输入序列并返回相反的顺序。
+    y2 = GRU(units=units, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(x)
+
+    # 链接y1和y2，作为双向的GRU网络层的整体输出
     y = add([y1, y2])
+
     return y
 
 
-def dense(units, x, activation="relu"):
-    x = Dropout(0.2)(x)
+def dense(units, x, drop_rate=0.2, activation="relu"):
+    # Dropout，将输入数据按比例（0.2）随机丢弃掉部分数据，防止过拟合的手段之一
+    x = Dropout(drop_rate)(x)
+
     y = Dense(units, activation=activation, use_bias=True, kernel_initializer='he_normal')(x)
+
     return y
 
 
