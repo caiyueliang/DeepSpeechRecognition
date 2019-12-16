@@ -63,14 +63,14 @@ class Am(object):
 
 
 # ============================模型组件=================================
-# bi_gru是一个双向的GRU网络层
+# bi_gru: 是一个双向的GRU网络层
 def bi_gru(units, x, drop_rate=0.2):
-    # Dropout，将输入数据按比例（0.2）随机丢弃掉部分数据，防止过拟合的手段之一
+    # Dropout，将输入数据按比例（0.2）随机丢弃（设置为0），防止过拟合的手段之一
     x = Dropout(drop_rate)(x)
 
-    # units表示输出空间的维数，该模型设置为512
+    # units表示输出空间的维数，这里设置为512
     # return_sequences为True，表示返回完整序列，而不是只返回序列中的最后一个输出
-    # kernel_initializer，表示权重矩阵的初始化方式
+    # kernel_initializer，表示权重矩阵的初始化方式，这里用"he_normal"
     y1 = GRU(units=units, return_sequences=True, kernel_initializer='he_normal')(x)
 
     # go_backwards为True，表示反向处理输入序列并返回相反的顺序。
@@ -82,10 +82,14 @@ def bi_gru(units, x, drop_rate=0.2):
     return y
 
 
+# dense: 全连接层，起到“分类器”的作用，将学到的“分布式特征表示”映射到样本标记空间。
 def dense(units, x, drop_rate=0.2, activation="relu"):
-    # Dropout，将输入数据按比例（0.2）随机丢弃掉部分数据，防止过拟合的手段之一
+    # Dropout，将输入数据按比例（0.2）随机丢弃（设置为0），防止过拟合的手段之一
     x = Dropout(drop_rate)(x)
 
+    # units表示输出空间的维数，这里设置为512
+    # activation，表示用什么激活函数，这样用"relu"
+    # kernel_initializer，表示权重矩阵的初始化方式，这里用"he_normal"
     y = Dense(units, activation=activation, use_bias=True, kernel_initializer='he_normal')(x)
 
     return y
