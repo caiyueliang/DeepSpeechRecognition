@@ -82,7 +82,7 @@ def bi_gru(units, x, drop_rate=0.2):
     return y
 
 
-# dense: 全连接层，起到“分类器”的作用，将学到的“分布式特征表示”映射到样本标记空间。
+# dense: 全连接层，起到“分类器”的作用，将网络学到的特征映射到样本标记空间
 def dense(units, x, drop_rate=0.2, activation="relu"):
     # Dropout，将输入数据按比例（0.2）随机丢弃（设置为0），防止过拟合的手段之一
     x = Dropout(drop_rate)(x)
