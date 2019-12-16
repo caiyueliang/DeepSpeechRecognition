@@ -50,11 +50,13 @@ class get_data(object):
                 read_files.append('prime.txt')
             if self.stcmd == True:
                 read_files.append('stcmd.txt')
+
         elif self.data_type == 'dev':
             if self.thchs30 == True:
                 read_files.append('thchs_dev.txt')
             if self.aishell == True:
                 read_files.append('aishell_dev.txt')
+
         elif self.data_type == 'test':
             if self.thchs30 == True:
                 read_files.append('thchs_test.txt')
@@ -69,6 +71,7 @@ class get_data(object):
             sub_file = 'data/' + file
             with open(sub_file, 'r', encoding='utf8') as f:
                 data = f.readlines()
+
             for line in tqdm(data):
                 wav_file, pny, han = line.split('\t')
                 self.wav_lst.append(wav_file)

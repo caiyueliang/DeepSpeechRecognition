@@ -8,7 +8,7 @@ import keras.backend.tensorflow_backend as KTF
 # 进行配置，每个GPU使用90%上限现存
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"                    # 使用编号为0，1号的GPU
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.7    # 每个GPU上限控制在60%以内
+config.gpu_options.per_process_gpu_memory_fraction = 0.8    # 每个GPU上限控制在60%以内
 session = tf.Session(config=config)
 # 设置session
 KTF.set_session(session)
@@ -23,7 +23,7 @@ def data_init():
     data_args.aishell = False
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 8
+    data_args.batch_size = 16
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -37,8 +37,8 @@ def data_init():
     data_args.aishell = False
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 8
-    # data_args.data_length = None
+    data_args.batch_size = 16
+    data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
     dev_data = get_data(data_args)
