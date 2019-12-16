@@ -28,24 +28,36 @@ class Am(object):
         self.gpu_nums = args.gpu_nums
         self.lr = args.lr
         self.is_training = args.is_training
+        print(" [vocab_size] ", self.vocab_size)
+        print("   [gpu_nums] ", self.gpu_nums)
+        print(" [learn_rate] ", self.lr)
+        print("[is_training] ", self.is_training)
+
         self._model_init()
+
         if self.is_training:
             self._ctc_init()
             self.opt_init()
 
+    # 模型初始化
     def _model_init(self):
-        self.inputs = Input(name='the_inputs', shape=(None, 200, 1))
-        x = Reshape((-1, 200))(self.inputs)
-        x = dense(512, x)
-        x = dense(512, x)
-        x = bi_gru(512, x)
-        x = bi_gru(512, x)
-        x = bi_gru(512, x)
-        x = dense(512, x)
-        self.outputs = dense(self.vocab_size, x, activation='softmax')
-        self.model = Model(inputs=self.inputs, outputs=self.outputs)
-        self.model.summary()
+        self.inputs = Input(name='the_inputs', shape=(None, 200, 1))    # 输入数据是三维: (-1, 200, 1)
 
+        x = Reshape((-1, 200))(self.inputs)                             # 数据reshape层二维: (-1, 200)
+        x = dense(512, x)                                               # 全链接层
+        x = dense(512, x)                                               # 全链接层
+        x = bi_gru(512, x)                                              # 双向的GRU层
+        x = bi_gru(512, x)                                              # 双向的GRU层
+        x = bi_gru(512, x)                                              # 双向的GRU层
+        x = dense(512, x)                                               # 全链接层
+
+        # 全链接层，输出的数据维度和字典中字的个数保持一致，激活函数是softmax
+        self.outputs = dense(self.vocab_size, x, activation='softmax')
+
+        self.model = Model(inputs=self.inputs, outputs=self.outputs)    # 模型注册
+        self.model.summary()                                            # 打印网络层的信息
+
+    # ctc初始化
     def _ctc_init(self):
         self.labels = Input(name='the_labels', shape=[None], dtype='float32')
         self.input_length = Input(name='input_length', shape=[1], dtype='int64')

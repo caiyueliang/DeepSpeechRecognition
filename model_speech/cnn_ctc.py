@@ -26,6 +26,11 @@ class Am():
         self.gpu_nums = args.gpu_nums
         self.lr = args.lr
         self.is_training = args.is_training
+        print(" [vocab_size] ", self.vocab_size)
+        print("   [gpu_nums] ", self.gpu_nums)
+        print(" [learn_rate] ", self.lr)
+        print("[is_training] ", self.is_training)
+
         self._model_init()
         if self.is_training:
             self._ctc_init()
