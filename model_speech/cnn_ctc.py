@@ -34,7 +34,7 @@ class Am():
         self._model_init()
         if self.is_training:
             self._ctc_init()
-            self.opt_init()
+            self._opt_init()
 
     def _model_init(self):
         self.inputs = Input(name='the_inputs', shape=(None, 200, 1))
@@ -61,14 +61,11 @@ class Am():
         self.ctc_model = Model(inputs=[self.labels, self.inputs,
             self.input_length, self.label_length], outputs=self.loss_out)
 
-    def opt_init(self):
+    def _opt_init(self):
         opt = Adam(lr = self.lr, beta_1 = 0.9, beta_2 = 0.999, decay = 0.01, epsilon = 10e-8)
         if self.gpu_nums > 1:
             self.ctc_model=multi_gpu_model(self.ctc_model,gpus=self.gpu_nums)
         self.ctc_model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=opt)
-
-
-
 
 
 # ============================模型组件=================================

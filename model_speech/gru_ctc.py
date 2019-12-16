@@ -37,13 +37,13 @@ class Am(object):
 
         if self.is_training:
             self._ctc_init()
-            self.opt_init()
+            self._opt_init()
 
     # 模型初始化
     def _model_init(self):
         self.inputs = Input(name='the_inputs', shape=(None, 200, 1))    # 输入数据是三维: (-1, 200, 1)
 
-        x = Reshape((-1, 200))(self.inputs)                             # 数据reshape层二维: (-1, 200)
+        x = Reshape((-1, 200))(self.inputs)                             # 数据reshape成二维: (-1, 200)
         x = dense(512, x)                                               # 全链接层
         x = dense(512, x)                                               # 全链接层
         x = bi_gru(512, x)                                              # 双向的GRU层
@@ -57,17 +57,18 @@ class Am(object):
         self.model = Model(inputs=self.inputs, outputs=self.outputs)    # 模型注册
         self.model.summary()                                            # 打印网络层的信息
 
-    # ctc初始化
+    # loss初始化
     def _ctc_init(self):
         self.labels = Input(name='the_labels', shape=[None], dtype='float32')
         self.input_length = Input(name='input_length', shape=[1], dtype='int64')
         self.label_length = Input(name='label_length', shape=[1], dtype='int64')
-        self.loss_out = Lambda(ctc_lambda, output_shape=(1,), name='ctc')\
-            ([self.labels, self.outputs, self.input_length, self.label_length])
-        self.ctc_model = Model(inputs=[self.labels, self.inputs,
-            self.input_length, self.label_length], outputs=self.loss_out)
+        self.loss_out = Lambda(ctc_lambda, output_shape=(1,), name='ctc')(
+            [self.labels, self.outputs, self.input_length, self.label_length])
+        self.ctc_model = Model(inputs=[self.labels, self.inputs, self.input_length, self.label_length],
+                               outputs=self.loss_out)
 
-    def opt_init(self):
+    # 优化器初始化
+    def _opt_init(self):
         opt = Adam(lr=self.lr, beta_1=0.9, beta_2=0.999, decay=0.01, epsilon=10e-8)
         if self.gpu_nums > 1:
             self.ctc_model = multi_gpu_model(self.ctc_model, gpus=self.gpu_nums)
@@ -100,7 +101,7 @@ def dense(units, x, drop_rate=0.2, activation="relu"):
     x = Dropout(drop_rate)(x)
 
     # units表示输出空间的维数，这里设置为512
-    # activation，表示用什么激活函数，这样用"relu"
+    # activation，表示用什么激活函数，默认用"relu"
     # kernel_initializer，表示权重矩阵的初始化方式，这里用"he_normal"
     y = Dense(units, activation=activation, use_bias=True, kernel_initializer='he_normal')(x)
 
