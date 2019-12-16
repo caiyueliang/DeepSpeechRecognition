@@ -10,19 +10,18 @@ from keras.utils import multi_gpu_model
 import tensorflow as tf
 
 
-
 def am_hparams():
     params = tf.contrib.training.HParams(
         # vocab
-        vocab_size = 50,
-        lr = 0.0008,
-        gpu_nums = 1,
-        is_training = True)
+        vocab_size=50,
+        lr=0.0008,
+        gpu_nums=1,
+        is_training=True)
     return params
 
 
 # =============================搭建模型====================================
-class Am():
+class Am(object):
     """docstring for Amodel."""
     def __init__(self, args):
         self.vocab_size = args.vocab_size
@@ -57,30 +56,26 @@ class Am():
             self.input_length, self.label_length], outputs=self.loss_out)
 
     def opt_init(self):
-        opt = Adam(lr = self.lr, beta_1 = 0.9, beta_2 = 0.999, decay = 0.01, epsilon = 10e-8)
+        opt = Adam(lr=self.lr, beta_1=0.9, beta_2=0.999, decay=0.01, epsilon=10e-8)
         if self.gpu_nums > 1:
-            self.ctc_model=multi_gpu_model(self.ctc_model,gpus=self.gpu_nums)
+            self.ctc_model = multi_gpu_model(self.ctc_model, gpus=self.gpu_nums)
         self.ctc_model.compile(loss={'ctc': lambda y_true, output: output}, optimizer=opt)
-
-
 
 
 # ============================模型组件=================================
 def bi_gru(units, x):
     x = Dropout(0.2)(x)
-    y1 = GRU(units, return_sequences=True,
-        kernel_initializer='he_normal')(x)
-    y2 = GRU(units, return_sequences=True, go_backwards=True,
-        kernel_initializer='he_normal')(x)
+    y1 = GRU(units, return_sequences=True, kernel_initializer='he_normal')(x)
+    y2 = GRU(units, return_sequences=True, go_backwards=True, kernel_initializer='he_normal')(x)
     y = add([y1, y2])
     return y
 
 
 def dense(units, x, activation="relu"):
     x = Dropout(0.2)(x)
-    y = Dense(units, activation=activation, use_bias=True,
-        kernel_initializer='he_normal')(x)
+    y = Dense(units, activation=activation, use_bias=True, kernel_initializer='he_normal')(x)
     return y
+
 
 def ctc_lambda(args):
     labels, y_pred, input_length, label_length = args

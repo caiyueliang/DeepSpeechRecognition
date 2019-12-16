@@ -47,8 +47,8 @@ def data_init():
 
 def train_am(train_data, dev_data):
     # 1.声学模型训练-----------------------------------
-    from model_speech.cnn_ctc import Am, am_hparams
-    # from model_speech.gru_ctc import Am, am_hparams
+    # from model_speech.cnn_ctc import Am, am_hparams
+    from model_speech.gru_ctc import Am, am_hparams
     am_args = am_hparams()
     am_args.vocab_size = len(train_data.am_vocab)
     am_args.gpu_nums = 1
@@ -68,13 +68,6 @@ def train_am(train_data, dev_data):
     # checkpoint
     ckpt = "model_{epoch:02d}-{val_loss:.2f}.hdf5"
     checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_loss', save_weights_only=False, verbose=1, save_best_only=True)
-
-    #
-    # for k in range(epochs):
-    #     print('this is the', k+1, 'th epochs trainning !!!')
-    #     batch = train_data.get_am_batch()
-    #     dev_batch = dev_data.get_am_batch()
-    #     am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=10, callbacks=[checkpoint], workers=1, use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
 
     batch = train_data.get_am_batch()
     dev_batch = dev_data.get_am_batch()
@@ -122,10 +115,10 @@ def train_lm(train_data, dev_data):
             for i in range(batch_num):
                 input_batch, label_batch = next(batch)
                 feed = {lm.x: input_batch, lm.y: label_batch}
-                cost,_ = sess.run([lm.mean_loss,lm.train_op], feed_dict=feed)
+                cost, _ = sess.run([lm.mean_loss,lm.train_op], feed_dict=feed)
                 total_loss += cost
                 if (k * batch_num + i) % 10 == 0:
-                    rs=sess.run(merged, feed_dict=feed)
+                    rs = sess.run(merged, feed_dict=feed)
                     writer.add_summary(rs, k * batch_num + i)
             print('epochs', k+1, ': average loss = ', total_loss/batch_num)
         saver.save(sess, 'logs_lm/model_%d' % (epochs + add_num))
