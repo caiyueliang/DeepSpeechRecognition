@@ -49,10 +49,10 @@ def data_init():
 
 def train_am(train_data, dev_data):
     # 1.声学模型训练-----------------------------------
-    from model_speech.cnn_ctc import Am, am_hparams
-    model_name = 'logs_am/cnn_ctc_model.h5'
-    # from model_speech.gru_ctc import Am, am_hparams
-    # model_name = 'logs_am/gru_ctc_model.h5'
+    # from model_speech.cnn_ctc import Am, am_hparams
+    # model_name = 'logs_am/cnn_ctc_model.h5'
+    from model_speech.gru_ctc import Am, am_hparams
+    model_name = 'logs_am/gru_ctc_model.h5'
     am_args = am_hparams()
     am_args.vocab_size = len(train_data.am_vocab)
     am_args.gpu_nums = 1
@@ -64,7 +64,7 @@ def train_am(train_data, dev_data):
         print('load acoustic model...', model_name)
         am.ctc_model.load_weights(model_name)
 
-    epochs = 500
+    epochs = 100
     batch_num = len(train_data.wav_lst) // train_data.batch_size
     print("[epochs]", epochs, "[batch_num]", batch_num)
 

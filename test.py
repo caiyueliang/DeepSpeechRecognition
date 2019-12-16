@@ -55,7 +55,7 @@ with sess.as_default():
 #    此处应设为'test'，我用了'train'因为演示模型较小，如果使用'test'看不出效果，
 #    且会出现未出现的词。
 
-data_args.data_type = 'train'
+data_args.data_type = 'test'
 data_args.thchs30 = True
 data_args.aishell = False
 data_args.prime = False
@@ -67,10 +67,13 @@ test_data = get_data(data_args)
 
 # 4. 进行测试-------------------------------------------
 am_batch = test_data.get_am_batch()
-print('[am_batch] batch_num: ', test_data.get_batch_num())
+
+batch_num = test_data.get_batch_num() if test_data.get_batch_num() < 100 else 100
+print('[am_batch] batch_num: ', test_data.get_batch_num(), batch_num)
+
 word_num = 0
 word_error_num = 0
-for i in range(test_data.get_batch_num()):
+for i in range(batch_num):
     print('\n the ', i, 'th example.')
     # 载入训练好的模型，并进行识别
     inputs, _ = next(am_batch)

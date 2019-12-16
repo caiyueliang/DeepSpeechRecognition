@@ -93,13 +93,15 @@ class get_data(object):
         print('make lm hanzi vocab...')
         self.han_vocab = self.mk_lm_han_vocab(self.han_lst)
 
+        self.batch_num = len(self.wav_lst) // self.batch_size
+
     def get_am_batch(self):
         shuffle_list = [i for i in range(len(self.wav_lst))]
         while 1:
             if self.shuffle == True:
                 shuffle(shuffle_list)
 
-            self.batch_num = len(self.wav_lst) // self.batch_size
+            # for i in range(len(self.wav_lst) // self.batch_size):
             for i in range(self.batch_num):
                 wav_data_lst = []
                 label_data_lst = []
@@ -126,7 +128,7 @@ class get_data(object):
                 yield inputs, outputs
 
     def get_lm_batch(self):
-        self.batch_num = len(self.pny_lst) // self.batch_size
+        # self.batch_num = len(self.pny_lst) // self.batch_size
         for k in range(self.batch_num):
             begin = k * self.batch_size
             end = begin + self.batch_size
