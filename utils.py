@@ -36,6 +36,7 @@ class get_data(object):
         self.data_length = args.data_length
         self.batch_size = args.batch_size
         self.shuffle = args.shuffle
+        self.batch_num = 0
         self.source_init()
 
     def source_init(self):
@@ -97,7 +98,9 @@ class get_data(object):
         while 1:
             if self.shuffle == True:
                 shuffle(shuffle_list)
-            for i in range(len(self.wav_lst) // self.batch_size):
+
+            self.batch_num = len(self.wav_lst) // self.batch_size
+            for i in range(self.batch_num):
                 wav_data_lst = []
                 label_data_lst = []
                 begin = i * self.batch_size
@@ -123,8 +126,8 @@ class get_data(object):
                 yield inputs, outputs
 
     def get_lm_batch(self):
-        batch_num = len(self.pny_lst) // self.batch_size
-        for k in range(batch_num):
+        self.batch_num = len(self.pny_lst) // self.batch_size
+        for k in range(self.batch_num):
             begin = k * self.batch_size
             end = begin + self.batch_size
             input_batch = self.pny_lst[begin:end]
@@ -135,6 +138,9 @@ class get_data(object):
             label_batch = np.array(
                 [self.han2id(line, self.han_vocab) + [0] * (max_len - len(line)) for line in label_batch])
             yield input_batch, label_batch
+
+    def get_batch_num(self):
+        return self.batch_num
 
     def pny2id(self, line, vocab):
         return [vocab.index(pny) for pny in line]
