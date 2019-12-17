@@ -47,42 +47,40 @@ def data_init():
     return train_data, dev_data
 
 
-def train_am(train_data, dev_data):
-    # 1.声学模型训练-----------------------------------
-    # from model_speech.cnn_ctc import Am, am_hparams
-    # model_name = 'logs_am/cnn_ctc_model.h5'
-    from model_speech.gru_ctc import Am, am_hparams
-    model_name = 'logs_am/gru_ctc_model.h5'
+# 声学模型训练
+def train_speech_model(train_dataset, dev_dataset):
+    from model_speech.gru_ctc import SpeechModel, am_hparams
+    model_name = 'logs_am/gru_ctc_model.h5'             # 模型最终保存路径
     am_args = am_hparams()
-    am_args.vocab_size = len(train_data.am_vocab)
+    am_args.vocab_size = len(train_dataset.am_vocab)    # 字典的数据长度
     am_args.gpu_nums = 1
-    am_args.lr = 0.0008
+    am_args.lr = 0.0008                                 # 学习速率
     am_args.is_training = True
-    am = Am(am_args)
+    am = SpeechModel(am_args)
 
+    # 如果存在预训练的模型，则加载模型参数
     if os.path.exists(model_name):
         print('load acoustic model...', model_name)
         am.ctc_model.load_weights(model_name)
 
-    epochs = 100
-    batch_num = len(train_data.wav_lst) // train_data.batch_size
-    print("[epochs]", epochs, "[batch_num]", batch_num)
+    epochs = 100                                        # 迭代次数
+    batch_num = train_dataset.get_batch_num()           # 每次迭代的批数
 
-    # checkpoint
-    ckpt = "model_{epoch:02d}-{val_loss:.2f}.hdf5"
-    checkpoint = ModelCheckpoint(os.path.join('./checkpoint', ckpt), monitor='val_loss', save_weights_only=False,
-                                 verbose=1, save_best_only=True)
+    # 设置每次迭代中要保存的模型文件的名称
+    ckpt = os.path.join("./checkpoint", "model_{epoch:02d}-{val_loss:.2f}.hdf5")
+    checkpoint = ModelCheckpoint(ckpt, monitor='val_loss', save_weights_only=False, verbose=1, save_best_only=True)
 
-    batch = train_data.get_am_batch()
-    dev_batch = dev_data.get_am_batch()
+    train_data = train_dataset.get_am_batch()           # 训练数据
+    dev_data = dev_dataset.get_am_batch()               # 验证数据
 
-    am.ctc_model.fit_generator(batch, steps_per_epoch=batch_num, epochs=epochs, callbacks=[checkpoint], workers=1,
-                               use_multiprocessing=False, validation_data=dev_batch, validation_steps=200)
-    am.ctc_model.save_weights(model_name)
+    # 模型训练
+    am.ctc_model.fit_generator(generator=train_data, steps_per_epoch=batch_num, epochs=epochs, callbacks=[checkpoint],
+                               workers=1, use_multiprocessing=False, validation_data=dev_data, validation_steps=200)
+    am.ctc_model.save_weights(model_name)               # 模型保存
 
 
-def train_lm(train_data, dev_data):
-    # 2.语言模型训练-------------------------------------------
+# 语言模型训练
+def train_language_model(train_data, dev_data):
     from model_language.transformer import Lm, lm_hparams
     lm_args = lm_hparams()
     lm_args.num_heads = 8
@@ -131,6 +129,6 @@ def train_lm(train_data, dev_data):
 
 
 if __name__ == "__main__":
-    train_data, dev_data = data_init()
-    train_am(train_data, dev_data)
-    train_lm(train_data, dev_data)
+    # train_data, dev_data = data_init()
+    train_speech_model(train_data, dev_data)
+    train_language_model(train_data, dev_data)
