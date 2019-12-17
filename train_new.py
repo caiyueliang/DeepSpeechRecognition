@@ -9,8 +9,10 @@ import keras.backend.tensorflow_backend as KTF
 
 # 进行配置，每个GPU使用90%上限现存
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"                    # 使用编号为0，1号的GPU
+gpu_num = 1                                                 # GPU个数
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.8    # 每个GPU上限控制在60%以内
+config.gpu_options.allow_growth = True                      # 不全部占满显存, 按需分配
+# config.gpu_options.per_process_gpu_memory_fraction = 0.8  # 每个GPU上限控制在60%以内
 session = tf.Session(config=config)
 # 设置session
 KTF.set_session(session)
@@ -25,7 +27,7 @@ def data_init():
     data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 50
+    data_args.batch_size = 100
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -39,7 +41,7 @@ def data_init():
     data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 50
+    data_args.batch_size = 100
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -55,7 +57,7 @@ def train_speech_model(train_dataset, dev_dataset):
     # model_name = 'logs_am/gru_ctc_model.h5'             # 模型最终保存路径
     am_args = am_hparams()
     am_args.vocab_size = len(train_dataset.am_vocab)    # 字典的数据长度
-    am_args.gpu_nums = 1
+    am_args.gpu_nums = gpu_num
     am_args.lr = 0.0008                                 # 学习速率
     am_args.is_training = True
     am = SpeechModel(am_args)

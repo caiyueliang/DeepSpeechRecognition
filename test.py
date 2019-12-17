@@ -9,8 +9,10 @@ import keras.backend.tensorflow_backend as KTF
 
 # 进行配置，每个GPU使用90%上限现存
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"                    # 使用编号为0，1号的GPU
+gpu_num = 1
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5    # 每个GPU上限控制在60%以内
+config.gpu_options.allow_growth = True                      # 不全部占满显存, 按需分配
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5  # 每个GPU上限控制在60%以内
 session = tf.Session(config=config)
 # 设置session
 KTF.set_session(session)
@@ -27,11 +29,11 @@ train_data = get_data(data_args)
 
 
 # 1.声学模型-----------------------------------
-from model_speech.cnn_ctc import Am, am_hparams
+from model_speech.cnn_ctc import SpeechModel, am_hparams
 
 am_args = am_hparams()
 am_args.vocab_size = len(train_data.am_vocab)
-am = Am(am_args)
+am = SpeechModel(am_args)
 print('loading acoustic model...')
 am.ctc_model.load_weights('logs_am/model.h5')
 
