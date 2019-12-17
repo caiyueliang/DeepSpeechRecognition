@@ -22,10 +22,10 @@ def data_init():
     data_args.data_path = './data/'
     data_args.data_type = 'train'
     data_args.thchs30 = True
-    data_args.aishell = False
+    data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 32
+    data_args.batch_size = 50
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -36,10 +36,10 @@ def data_init():
     data_args.data_path = './data/'
     data_args.data_type = 'dev'
     data_args.thchs30 = True
-    data_args.aishell = False
+    data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
-    data_args.batch_size = 32
+    data_args.batch_size = 50
     data_args.data_length = None
     # data_args.data_length = 10
     data_args.shuffle = True
@@ -50,7 +50,9 @@ def data_init():
 # 声学模型训练
 def train_speech_model(train_dataset, dev_dataset):
     from model_speech.gru_ctc import SpeechModel, am_hparams
-    model_name = 'logs_am/gru_ctc_model.h5'             # 模型最终保存路径
+    model_name = 'logs_am/cnn_ctc_model.h5'               # 模型最终保存路径
+    # from model_speech.gru_ctc import SpeechModel, am_hparams
+    # model_name = 'logs_am/gru_ctc_model.h5'             # 模型最终保存路径
     am_args = am_hparams()
     am_args.vocab_size = len(train_dataset.am_vocab)    # 字典的数据长度
     am_args.gpu_nums = 1
@@ -129,6 +131,6 @@ def train_language_model(train_data, dev_data):
 
 
 if __name__ == "__main__":
-    # train_data, dev_data = data_init()
+    train_data, dev_data = data_init()
     train_speech_model(train_data, dev_data)
     train_language_model(train_data, dev_data)

@@ -19,7 +19,7 @@ def am_hparams():
 
 
 # =============================搭建模型====================================
-class Am():
+class SpeechModel(object):
     """docstring for Amodel."""
     def __init__(self, args):
         self.vocab_size = args.vocab_size
