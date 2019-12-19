@@ -125,6 +125,7 @@ class get_data(object):
                           'label_length': label_length,
                           }
                 outputs = {'ctc': np.zeros(pad_wav_data.shape[0], )}
+                print("[inputs]", inputs, "[outputs]", outputs)
                 yield inputs, outputs
 
     def get_lm_batch(self):

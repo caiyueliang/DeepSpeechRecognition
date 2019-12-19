@@ -23,7 +23,7 @@ def data_init():
     data_args = data_hparams()
     data_args.data_path = './data/'
     data_args.data_type = 'train'
-    data_args.thchs30 = True
+    data_args.thchs30 = False
     data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
@@ -37,7 +37,7 @@ def data_init():
     data_args = data_hparams()
     data_args.data_path = './data/'
     data_args.data_type = 'dev'
-    data_args.thchs30 = True
+    data_args.thchs30 = False
     data_args.aishell = True
     data_args.prime = False
     data_args.stcmd = False
